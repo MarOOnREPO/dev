@@ -1,0 +1,11 @@
+{
+  "name": "ui-ux-pro-max",
+  "description": "UI/UX design intelligence with 67 styles, 161 color palettes, 57 font pairings, 25 chart types, 15 tech stacks. Design System Generator with 161 industry-specific reasoning rules. Supports: React, Next.js, Vue, Svelte, Astro, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, Nuxt, Jetpack Compose, Angular, Laravel.",
+  "version": "2.5.0",
+  "author": {
+    "name": "nextlevelbuilder",
+    "url": "https://github.com/nextlevelbuilder"
+  },
+  "license": "MIT",
+  "keywords": ["ui", "ux", "design", "styles", "typography", "color-palette", "accessibility", "charts", "components", "design-system"]
+}
