@@ -1,0 +1,25 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# Downloads & Logs
+downloads/
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# SSL (auto-generated)
+deployment/ssl/

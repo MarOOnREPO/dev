@@ -1,0 +1,25 @@
+[Unit]
+Description=Torrent Stream Player
+After=network.target
+
+[Service]
+Type=simple
+User=torrentplayer
+Group=torrentplayer
+WorkingDirectory=/opt/torrent-stream-player/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=LOG_LEVEL=info
+Environment=DOWNLOADS_DIR=/opt/torrent-stream-player/downloads
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/torrent-stream-player/downloads /opt/torrent-stream-player/logs
+
+[Install]
+WantedBy=multi-user.target
