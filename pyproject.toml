@@ -1,7 +1,7 @@
 [project]
-name = "multi-harness-marketplace"
-version = "0.1.0"
-description = "Multi-harness agentic plugin marketplace orchestrator"
+name = "maroon-dev"
+version = "1.0.0"
+description = "MarOOn DEV — Multi-Harness Agentic Plugin Marketplace Orchestrator"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -21,6 +21,7 @@ dev = [
 
 [project.scripts]
 marketplace = "marketplace.cli.main:app"
+maroon = "marketplace.cli.main:app"
 
 [build-system]
 requires = ["hatchling"]
@@ -43,10 +44,3 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-
-[dependency-groups]
-dev = [
-    "pytest>=9.0.3",
-    "pytest-asyncio>=1.4.0",
-    "pytest-cov>=7.1.0",
-]

@@ -1,99 +1,99 @@
-# claude-agents — multi-harness agentic plugin marketplace
+# MarOOn DEV — Multi-Harness Agentic Plugin Marketplace
 
-Production-ready agentic-workflow building blocks: **83 plugins** (81 local + 2 external), **191 agents**, **155 skills**, **102 commands**. Native source-of-truth for Claude Code; also consumed by OpenAI Codex CLI, Cursor, OpenCode, and Gemini CLI from a single Markdown source.
+Production-ready agentic-workflow building blocks: **83 plugins**, **191 agents**, **156 skills**, **102 commands**. Native source-of-truth for Claude Code and Kimi Code; also consumed by OpenAI Codex CLI, Cursor, OpenCode, and Gemini CLI from a single Markdown source.
 
-This file is the canonical context file. Codex / Cursor / OpenCode read it directly. Claude Code reads it via `@AGENTS.md` import in `CLAUDE.md`. Gemini CLI reads it via `.gemini/settings.json` (`context.fileName`).
+This file is the canonical context file. Codex / Cursor / OpenCode read it directly. Claude Code reads it via `@AGENTS.md` import in `CLAUDE.md`. **Kimi Code reads it directly as the project context file.** Gemini CLI reads it via `.gemini/settings.json` (`context.fileName`).
 
-> **Read this file like a table of contents.** Detail lives in `docs/`. Authoring conventions live in `docs/authoring.md`. Per-harness setup and capability deltas live in [`docs/harnesses.md`](docs/harnesses.md). Gemini-specific setup is in `GEMINI.md` (also auto-loaded by Gemini CLI). This file should never grow beyond ~150 lines (per OpenAI's [harness-engineering](https://openai.com/index/harness-engineering/) practice).
+> **Read this file like a table of contents.** Detail lives in `docs/`. Authoring conventions live in `docs/authoring.md`. Per-harness setup and capability deltas live in [`docs/harnesses.md`](docs/harnesses.md). Gemini-specific setup is in `GEMINI.md` (also auto-loaded by Gemini CLI).
 
 ## Map
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** — top-level architectural overview (adapter framework, source-of-truth invariant, capability matrix summary)
+- **[README.md](README.md)** — Quick start, stats, commands
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — top-level architectural overview
 - **[docs/architecture.md](docs/architecture.md)** — detailed design principles
-- **[docs/plugins.md](docs/plugins.md)** — full plugin catalog (83 plugins by category)
+- **[docs/plugins.md](docs/plugins.md)** — full plugin catalog (83 plugins)
 - **[docs/agents.md](docs/agents.md)** — agent reference (191 agents, model tiers)
-- **[docs/agent-skills.md](docs/agent-skills.md)** — skill reference (progressive disclosure model)
+- **[docs/agent-skills.md](docs/agent-skills.md)** — skill reference (progressive disclosure)
 - **[docs/usage.md](docs/usage.md)** — commands, workflows, examples
-- **[docs/authoring.md](docs/authoring.md)** — portable-content style guide (read before adding plugins)
+- **[docs/authoring.md](docs/authoring.md)** — portable-content style guide
 - **[docs/harnesses.md](docs/harnesses.md)** — per-harness capability matrix
-- **[docs/plugin-eval.md](docs/plugin-eval.md)** — three-layer quality evaluation framework
-- **[docs/round-trip-results.md](docs/round-trip-results.md)** — real-CLI verification recipes
+- **[docs/plugin-eval.md](docs/plugin-eval.md)** — three-layer quality evaluation
+- **[docs/round-trip-results.md](docs/round-trip-results.md)** — real-CLI verification
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to contribute
+
+## Kimi Code Integration
+
+**MarOOn DEV** is optimized for Kimi Code CLI. When working in this project:
+
+### Automatic Agent Loading
+
+Kimi should use the marketplace orchestrator to automatically load relevant agents and skills for any user prompt:
+
+```bash
+# Run this command to get a full context bundle
+.venv/bin/marketplace load-project "USER_PROMPT_HERE" --stdout
+```
+
+Then read the output and respond as the loaded agents.
+
+### Manual Agent Reference
+
+Reference any agent or skill directly:
+- `@plugins/<plugin>/agents/<name>.md` — load an agent persona
+- `@plugins/<plugin>/skills/<name>/SKILL.md` — load a skill
+
+### Multi-Agent Coordination
+
+For complex projects, coordinate between multiple agents:
+1. Load the Architect Agent (`ship-mate__architect`) for planning
+2. Load domain-specific agents for implementation
+3. Load the Security Agent for review
+4. Load the DevOps Agent for deployment
+
+### Available Commands
+
+```bash
+marketplace stats              # Show marketplace statistics
+marketplace ls                 # List all entities
+marketplace match "prompt"     # Find best matches
+marketplace load-project "..." # Full A-to-Z orchestration
+marketplace invoke --agent ... # Invoke across harnesses
+```
 
 ## Working in this repo
 
-- Python tooling: **uv** (package manager), **ruff** (lint/format), **ty** (type check). Do not use pip / mypy / black.
-- Plugins live under `plugins/<name>/` with auto-discovery — see `docs/authoring.md` for frontmatter shapes.
-- Plugin names: lowercase, hyphen-separated. Never use `__` (it's the adapter namespace separator).
-- Never commit secrets. Never run destructive git (force-push, `reset --hard`, branch -D) without explicit ask.
+- Python tooling: **uv** (package manager), **ruff** (lint/format)
+- Plugins live under `plugins/<name>/` with auto-discovery
+- Plugin names: lowercase, hyphen-separated
+- Never commit secrets
 
-## Quality gates (run these before pushing)
+## Quality gates
 
 ```bash
-make validate STRICT=1     # structural validation across all harness outputs
-make garden                # drift detection (dead links, stale artifacts, oversize skills)
-make test                  # full pytest suite (plugin-eval + tools/tests/)
-make smoke-test            # real-CLI subprocess tests against generated artifacts
+make validate STRICT=1     # structural validation
+make garden                # drift detection
+make test                  # pytest suite
+make smoke-test            # real-CLI tests
 ```
-
-CI (`.github/workflows/validate.yml`) runs all four on every PR plus installs OpenCode + Gemini CLI for live verification.
 
 ## Regenerating per-harness artifacts
 
 ```bash
 make generate HARNESS=codex      # emits .codex/skills, .codex/agents
 make generate HARNESS=cursor     # emits .cursor-plugin/, .cursor/rules/
-make generate HARNESS=opencode   # emits .opencode/agents/, .opencode/commands/, .opencode/skills/
-make generate HARNESS=gemini     # emits skills/, agents/, commands/ at extension root
-make generate-all                # all four
-make install-opencode            # symlink generated OpenCode artifacts into global config
+make generate HARNESS=opencode   # emits .opencode/
+make generate HARNESS=gemini     # emits skills/, agents/, commands/
+make generate-all                # all harnesses
 ```
-
-Source-of-truth lives only under `plugins/`. Generated artifacts are gitignored — never hand-edit them.
 
 ## Skills (cross-harness)
 
-155 skills under `plugins/*/skills/<n>/SKILL.md` — discoverable by every harness:
-
-- **Claude Code**: auto-discovery via Anthropic's SKILL.md spec
-- **Codex CLI**: mirrored to `.codex/skills/<plugin>__<skill>/` (8 KB body cap; detail in `references/details.md`)
-- **OpenCode**: mirrored to `.opencode/skills/<plugin>-<skill>/` using hyphenated names for global install
-- **Cursor**: reads `.claude/skills/` directly (no re-emit)
-- **Gemini CLI**: native skills at `skills/<plugin>__<skill>/SKILL.md`
-
-Top-level `skills/` is Gemini output; do not use it for OpenCode installs.
+156 skills under `plugins/*/skills/<n>/SKILL.md` — discoverable by every harness.
 
 ## Subagents (cross-harness)
 
-191 subagents under `plugins/*/agents/<name>.md`. Per-harness transpilation:
-
-- **Codex**: `.codex/agents/<plugin>__<agent>.toml` (drop `tools:`, map model alias to GPT-5 family, infer `sandbox_mode`)
-- **OpenCode**: `.opencode/agents/<plugin>__<agent>.md` with `mode: subagent` + `permission:` block (locked agents — those with source `tools: []` — get deny-everything except base `skill`/`task`)
-- **Gemini**: `agents/<plugin>__<agent>.md` (April 2026 subagent spec)
-- **Cursor**: reads `.claude/agents/` directly
-
-## Kimi Code CLI Integration
-
-This repo includes a **Kimi-aware auto-loader** at `scripts/kimi-auto-load.py` and a marketplace CLI at `.venv/bin/marketplace`.
-
-When working in Kimi Code CLI:
-
-1. **Auto-load relevant agents/skills for any prompt:**
-   ```bash
-   .venv/bin/python scripts/kimi-auto-load.py "your task description"
-   ```
-   This outputs a context bundle with the top-matching agent personas and skill knowledge.
-
-2. **Match-only (to preview what would load):**
-   ```bash
-   .venv/bin/marketplace match "your task description" --top-k 5
-   ```
-
-3. **Load specific files manually:**
-   Reference any agent/skill directly: `@plugins/<plugin>/agents/<name>.md` or `@plugins/<plugin>/skills/<name>/SKILL.md`
-
-The orchestrator (`marketplace/core/orchestrator.py`) can dispatch to all 7 harnesses simultaneously (source, claude, codex, cursor, opencode, gemini, copilot).
+191 subagents under `plugins/*/agents/<name>.md`.
 
 ## Why this file is short
 
-Per OpenAI's harness-engineering practice: this file is a **map**, not an encyclopedia. Procedural detail lives in skills (loaded on demand by agents). Reference material lives in `docs/` (loaded when an agent navigates). A single bloated AGENTS.md crowds out the task, rots quickly, and is hard to verify mechanically. Keep it lean; push detail elsewhere.
+Per OpenAI's harness-engineering practice: this file is a **map**, not an encyclopedia. Procedural detail lives in skills (loaded on demand by agents). Reference material lives in `docs/`.

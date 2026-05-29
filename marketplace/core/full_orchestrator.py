@@ -67,13 +67,14 @@ class FullProjectOrchestrator:
     def orchestrate(
         self,
         user_prompt: str = "",
-        min_score: float = 0.5,
-        max_per_category: int = 10,
+        min_score: float = 0.05,
+        max_per_category: int = 999,
         load_tests: bool = True,
         load_security: bool = True,
         load_infra: bool = True,
         load_docs: bool = True,
         load_orchestrator: bool = True,
+        load_all_matching: bool = True,
     ) -> LoadedContext:
         """
         Full A-to-Z orchestration:
@@ -89,25 +90,25 @@ class FullProjectOrchestrator:
         # Build enriched prompt from user input + project analysis
         enriched = f"{user_prompt}. {profile.to_prompt()}"
 
-        # 1. Match ALL agents above threshold
+        # 1. Match ALL agents above threshold (use top_k=500 for MAX coverage)
         all_agent_matches = self.matcher.match(
             enriched,
-            top_k=100,
+            top_k=500,
             min_score=min_score,
             include_agents=True,
             include_skills=False,
         )
-        context.agents = all_agent_matches[:max_per_category]
+        context.agents = all_agent_matches[:max_per_category] if not load_all_matching else all_agent_matches
 
-        # 2. Match ALL skills above threshold
+        # 2. Match ALL skills above threshold (use top_k=500 for MAX coverage)
         all_skill_matches = self.matcher.match(
             enriched,
-            top_k=100,
+            top_k=500,
             min_score=min_score,
             include_agents=False,
             include_skills=True,
         )
-        context.skills = all_skill_matches[:max_per_category]
+        context.skills = all_skill_matches[:max_per_category] if not load_all_matching else all_skill_matches
 
         # 3. Load testing skills if requested
         if load_tests and (profile.testing_setup or "test" in user_prompt.lower()):

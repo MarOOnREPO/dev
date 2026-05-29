@@ -17,7 +17,7 @@ from marketplace.core.matcher import PromptMatcher, find_matches
 from marketplace.core.models import Agent
 from marketplace.core.orchestrator import MultiHarnessOrchestrator
 
-app = typer.Typer(help="Multi-harness agentic plugin marketplace CLI")
+app = typer.Typer(help="MarOOn DEV — Multi-Harness Agentic Plugin Marketplace CLI")
 console = Console()
 
 ALL_HARNESSES = ["source", "claude", "codex", "cursor", "opencode", "gemini", "copilot"]
@@ -95,7 +95,7 @@ def list_entities(
 
 @app.command()
 def stats() -> None:
-    """Show marketplace statistics."""
+    """Show MarOOn DEV marketplace statistics."""
     registry = _get_registry()
     s = registry.stats()
     table = Table(title="Marketplace Statistics")
@@ -231,8 +231,9 @@ def match(
 def load_project(
     prompt: str = typer.Argument("", help="Optional prompt describing what you want to do"),
     project_dir: Path = typer.Option(Path("."), "--dir", "-d", help="Project directory to analyze"),
-    min_score: float = typer.Option(0.5, "--min-score", help="Minimum match score"),
-    max_per_category: int = typer.Option(10, "--max", "-m", help="Max entities per category"),
+    min_score: float = typer.Option(0.05, "--min-score", help="Minimum match score"),
+    max_per_category: int = typer.Option(999, "--max", "-m", help="Max entities per category"),
+    load_all: bool = typer.Option(True, "--load-all/--top-only", help="Load ALL matching agents/skills (default) or only top N"),
     output: Path = typer.Option(Path("kimi-context-bundle.md"), "--output", "-o", help="Output file"),
     no_tests: bool = typer.Option(False, "--no-tests", help="Skip testing skills"),
     no_security: bool = typer.Option(False, "--no-security", help="Skip security agents/skills"),
@@ -253,6 +254,7 @@ def load_project(
         load_security=not no_security,
         load_infra=not no_infra,
         load_docs=not no_docs,
+        load_all_matching=load_all,
     )
 
     console.print(f"[green]✓ Analysis complete[/green]")
