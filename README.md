@@ -246,6 +246,6 @@ MIT — See [LICENSE](LICENSE)
 
 <div align="center">
 
-**Built with ❤️ by MarOOn** using agents & custom orchestration layer.
+**Built with ❤️ by MarOOn**
 
 </div>
